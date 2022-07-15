@@ -13,6 +13,8 @@ import java.util.List;
 @Data
 @Document("contactbook")
 @AllArgsConstructor
+//@Getter
+@Setter
 public class AddressEntity {
     @Id
     private String id;

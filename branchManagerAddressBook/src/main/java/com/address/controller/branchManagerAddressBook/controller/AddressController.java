@@ -31,6 +31,16 @@ public class AddressController {
         return service.findContact(address);
     }
 
+    @GetMapping("/unique")
+    public List<String > uniqueList(){
+        return service.findUnique();
+    }
+
+    @GetMapping("/unique1")
+    public void Unique(){
+        service.findUniqueContact();
+    }
+
 
     /**
      * Dummy endpoints for fetching and deleting all records
