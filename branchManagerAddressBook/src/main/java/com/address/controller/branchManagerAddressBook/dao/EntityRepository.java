@@ -14,4 +14,6 @@ public interface EntityRepository extends MongoRepository<AddressEntity, String>
     AddressEntity deleteByName(String name);
     @Query(value = "{address : ?0}", fields = "{name:1, mobileNumber:1}")
     List<AddressEntity> findByAddress(AddressType addressType);
+
+    AddressEntity findByName(String name);
 }

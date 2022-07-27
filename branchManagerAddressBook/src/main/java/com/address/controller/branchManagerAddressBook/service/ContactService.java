@@ -2,6 +2,8 @@ package com.address.controller.branchManagerAddressBook.service;
 import com.address.controller.branchManagerAddressBook.dao.EntityRepository;
 import com.address.controller.branchManagerAddressBook.entity.AddressEntity;
 import com.address.controller.branchManagerAddressBook.enumclass.AddressType;
+import com.address.controller.branchManagerAddressBook.exceptionhandler.UserAlreadyExist;
+import com.address.controller.branchManagerAddressBook.exceptionhandler.UserNameNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -12,35 +14,40 @@ import java.util.UUID;
 @Service
 public class ContactService {
 
-    @Autowired
+    //Constructor Injection is used
     private EntityRepository repository;
-    public AddressEntity saveContact(AddressEntity entity){
-        List<AddressEntity> contact = new ArrayList<>();
-        contact = repository.findAll();
-        for(AddressEntity address : contact){
-            if(address.getName().equals(entity.getName()) && address.getAddress().equals(entity.getAddress())){
-                entity.setId("Already Saved in DB");
-                return entity;
-            }
-        }
-        entity.setId(UUID.randomUUID().toString());
-        return repository.save(entity);
+    @Autowired
+    public ContactService(EntityRepository repository) {
+        this.repository = repository;
     }
-    public AddressEntity removeContact(String name) throws NullPointerException{
-        List<AddressEntity> contact = new ArrayList<>();
-        contact = repository.findAll();
 
-        for(AddressEntity address : contact){
-            if(address.getName().equals(name)){
-                return repository.deleteByName(name);
-            }
+    public AddressEntity saveContact(AddressEntity entity) throws UserAlreadyExist {
+
+        AddressEntity validEntity;
+        validEntity = repository.findByName(entity.getName());
+        if(validEntity != null && entity.getAddress().equals(validEntity.getAddress()) ){
+            throw new UserAlreadyExist("User is Already exist");
         }
-        return null;
+        else {
+            entity.setId(UUID.randomUUID().toString());
+            return repository.save(entity);
+        }
+
+    }
+    public AddressEntity removeContact(String name) throws UserNameNotFoundException {
+        AddressEntity entity;
+        entity = repository.findByName(name);
+        if(entity!=null){
+            return repository.deleteByName(entity.getName());
+        }
+        else {
+            throw new UserNameNotFoundException("User doesn't exist");
+        }
+
     }
     public List<AddressEntity> findContact(AddressType addressType) throws MethodArgumentTypeMismatchException {
         List<AddressEntity> entities = new ArrayList<>();
         entities = repository.findAll();
-
         return repository.findByAddress(addressType);
     }
 
@@ -61,19 +68,6 @@ public class ContactService {
             }
         }
         return secondList;
-    }
-
-    public void findUniqueContact(){
-        List<AddressEntity> firstList = new ArrayList<>();
-        List<String> secondList = new ArrayList<>();
-        firstList = repository.findAll();
-
-        for(AddressEntity entity : firstList){
-            if(!(secondList.contains(entity.getName()))){
-                System.out.println(entity.getId() + entity.getName() + entity.getMobileNumber() + entity.getAddress());
-            }
-        }
-
     }
 
 

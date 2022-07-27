@@ -2,6 +2,8 @@ package com.address.controller.branchManagerAddressBook.controller;
 
 import com.address.controller.branchManagerAddressBook.entity.AddressEntity;
 import com.address.controller.branchManagerAddressBook.enumclass.AddressType;
+import com.address.controller.branchManagerAddressBook.exceptionhandler.UserAlreadyExist;
+import com.address.controller.branchManagerAddressBook.exceptionhandler.UserNameNotFoundException;
 import com.address.controller.branchManagerAddressBook.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,16 +15,20 @@ import java.util.List;
 @RestController
 @RequestMapping("app/v1/address-book")
 public class AddressController {
-
-    @Autowired
+    //Constructor Injection is used
     private ContactService service;
-    @PostMapping("/address")
-    public ResponseEntity<AddressEntity> saveContactToDB(@RequestBody AddressEntity address){
+    @Autowired
+    public AddressController(ContactService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/saving-address")
+    public ResponseEntity<AddressEntity> saveNewContact(@RequestBody AddressEntity address) throws UserAlreadyExist {
         service.saveContact(address);
         return new ResponseEntity<>(address, HttpStatus.CREATED);
     }
     @DeleteMapping("/delete/{name}")
-    public AddressEntity removeFromDB(@PathVariable (value = "name") String name){
+    public AddressEntity removingDataAsPerName(@PathVariable (value = "name") String name) throws UserNameNotFoundException {
         return service.removeContact(name);
     }
 
@@ -31,15 +37,12 @@ public class AddressController {
         return service.findContact(address);
     }
 
-    @GetMapping("/unique")
-    public List<String > uniqueList(){
+    @GetMapping("/unique-contactList")
+    public List<String > uniqueListOfContact(){
         return service.findUnique();
     }
 
-    @GetMapping("/unique1")
-    public void Unique(){
-        service.findUniqueContact();
-    }
+
 
 
     /**
