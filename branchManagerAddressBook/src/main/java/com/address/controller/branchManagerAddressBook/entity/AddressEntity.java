@@ -20,7 +20,6 @@ import java.util.List;
 public class AddressEntity {
     @Id
     private String id;
-    @NotNull
     private String name;
     private List<String> mobileNumber;
     private AddressType address;
